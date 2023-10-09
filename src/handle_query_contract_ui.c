@@ -13,34 +13,50 @@ static void set_okx_earn_ui(ethQueryContractUI_t *msg, const context_t *context)
     // const uint8_t *eth_amount = msg->pluginSharedRO->txContent->value.value;
     // uint8_t eth_amount_size = msg->pluginSharedRO->txContent->value.length;
 
-    if (screenIndex < earn_token_in_count) // token in
-    {        
+    if (screenIndex < earn_token_in_count)  // token in
+    {
         strlcpy(msg->title, "Send", msg->titleLength);
-        if (screenIndex == 0)
-        {
+        if (screenIndex == 0) {
             const uint8_t *eth_amount = context->token_in_amount1;
             uint8_t eth_amount_size = sizeof(context->token_in_amount1);
-            amountToString(context->token_in_amount1, eth_amount_size, WEI_TO_ETHER, "Token 1", msg->msg, msg->msgLength);
-        }else if (screenIndex == 1)
-        {
+            amountToString(context->token_in_amount1,
+                           eth_amount_size,
+                           WEI_TO_ETHER,
+                           "Token 1",
+                           msg->msg,
+                           msg->msgLength);
+        } else if (screenIndex == 1) {
             const uint8_t *eth_amount = context->token_in_amount2;
             uint8_t eth_amount_size = sizeof(context->token_in_amount2);
-            amountToString(eth_amount, eth_amount_size, WEI_TO_ETHER, "Token 2", msg->msg, msg->msgLength);
+            amountToString(eth_amount,
+                           eth_amount_size,
+                           WEI_TO_ETHER,
+                           "Token 2",
+                           msg->msg,
+                           msg->msgLength);
         }
-    }else // token out
+    } else  // token out
     {
         strlcpy(msg->title, "Receive", msg->titleLength);
         uint8_t outIndex = screenIndex - earn_token_in_count;
-        if (outIndex == 0)
-        {
+        if (outIndex == 0) {
             const uint8_t *eth_amount = context->token_out_amount1;
             uint8_t eth_amount_size = sizeof(context->token_out_amount1);
-            amountToString(eth_amount, eth_amount_size, WEI_TO_ETHER, "Token 1", msg->msg, msg->msgLength);
-        }else if (outIndex == 1)
-        {
-             const uint8_t *eth_amount = context->token_out_amount2;
+            amountToString(eth_amount,
+                           eth_amount_size,
+                           WEI_TO_ETHER,
+                           "Token 1",
+                           msg->msg,
+                           msg->msgLength);
+        } else if (outIndex == 1) {
+            const uint8_t *eth_amount = context->token_out_amount2;
             uint8_t eth_amount_size = sizeof(context->token_out_amount2);
-            amountToString(eth_amount, eth_amount_size, WEI_TO_ETHER, "Token 2", msg->msg, msg->msgLength);
+            amountToString(eth_amount,
+                           eth_amount_size,
+                           WEI_TO_ETHER,
+                           "Token 2",
+                           msg->msg,
+                           msg->msgLength);
         }
     }
 }
@@ -51,17 +67,22 @@ static void set_send_ui(ethQueryContractUI_t *msg, const context_t *context) {
         strlcpy(msg->title, "Stake", msg->titleLength);
     } else if (context->selectorIndex == OKX_DEX_UNX_SWAP_BY_ORDER_ID) {
         strlcpy(msg->title, "Swap", msg->titleLength);
-    }else {
+    } else {
         strlcpy(msg->title, "Send", msg->titleLength);
     }
-    
+
     const uint8_t *eth_amount = msg->pluginSharedRO->txContent->value.value;
     uint8_t eth_amount_size = msg->pluginSharedRO->txContent->value.length;
 
     // Converts the uint256 number located in `eth_amount` to its string representation and
     // copies this to `msg->msg`.
     // amountToString(eth_amount, eth_amount_size, WEI_TO_ETHER, "ETH", msg->msg, msg->msgLength);
-    amountToString(eth_amount, eth_amount_size, WEI_TO_ETHER, msg->network_ticker, msg->msg, msg->msgLength);
+    amountToString(eth_amount,
+                   eth_amount_size,
+                   WEI_TO_ETHER,
+                   msg->network_ticker,
+                   msg->msg,
+                   msg->msgLength);
 }
 
 // Set UI for "Receive" screen.
@@ -120,9 +141,9 @@ void handle_query_contract_ui(void *parameters) {
 
     msg->result = ETH_PLUGIN_RESULT_OK;
 
-    if (context->selectorIndex == OKX_EARN_SWAP) { // earn
+    if (context->selectorIndex == OKX_EARN_SWAP) {  // earn
         set_okx_earn_ui(msg, context);
-    }else { // dex
+    } else {  // dex
         switch (msg->screenIndex) {
             case 0:
                 set_send_ui(msg, context);
