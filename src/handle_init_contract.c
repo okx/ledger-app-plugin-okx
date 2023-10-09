@@ -61,7 +61,7 @@ void handle_init_contract(void *parameters) {
         case OKX_DEX_BRIDGE_TO_V2:
             context->next_param = DEX_BRIDGE_TO_V2;
             break;
-         case OKX_DEX_SWAP_BRIDGE_TO_V2:
+        case OKX_DEX_SWAP_BRIDGE_TO_V2:
             context->next_param = DEX_SWAP_BRIDGE_TO_V2;
             break;
         // Keep this

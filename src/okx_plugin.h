@@ -58,12 +58,12 @@ typedef struct context_t {
     selector_t selectorIndex;
 
     // For OKX
-    char* operation;                         // operation name
-    uint16_t earn_token_in_count;            // earn token in count
-    uint16_t earn_token_out_count_offset;    // earn token out offset
-    uint16_t earn_token_out_count;           // earn token out count
-    uint16_t earn_calls_selector_offset;     // earn calls selector offset
-    uint8_t token_in_amount1[INT256_LENGTH]; // in amount or receive amount
+    char *operation;                          // operation name
+    uint16_t earn_token_in_count;             // earn token in count
+    uint16_t earn_token_out_count_offset;     // earn token out offset
+    uint16_t earn_token_out_count;            // earn token out count
+    uint16_t earn_calls_selector_offset;      // earn calls selector offset
+    uint8_t token_in_amount1[INT256_LENGTH];  // in amount or receive amount
     uint8_t token_in_amount2[INT256_LENGTH];
     uint8_t token_out_amount1[INT256_LENGTH];
     uint8_t token_out_amount2[INT256_LENGTH];

@@ -11,11 +11,9 @@ void handle_query_contract_id(void *parameters) {
     // strlcpy(msg->name, PLUGIN_NAME, msg->nameLength);
     if (context->selectorIndex == OKX_EARN_SWAP) {
         strlcpy(msg->name, "OKX Web3 DeFi", msg->nameLength);
-        if (context->operation != NULL)
-        {
+        if (context->operation != NULL) {
             strlcpy(msg->version, context->operation, msg->versionLength);
-        }else
-        {
+        } else {
             strlcpy(msg->version, "Earn", msg->versionLength);
         }
         msg->result = ETH_PLUGIN_RESULT_OK;
@@ -26,7 +24,7 @@ void handle_query_contract_id(void *parameters) {
         strlcpy(msg->name, "OKX Web3 Dex", msg->nameLength);
         strlcpy(msg->version, "Swap", msg->versionLength);
         msg->result = ETH_PLUGIN_RESULT_OK;
-    }else if (context->selectorIndex == OKX_DEX_BRIDGE_TO_V2 ||
+    } else if (context->selectorIndex == OKX_DEX_BRIDGE_TO_V2 ||
                context->selectorIndex == OKX_DEX_SWAP_BRIDGE_TO_V2) {
         strlcpy(msg->name, "OKX Web3 Dex", msg->nameLength);
         strlcpy(msg->version, "Cross-chain Swap", msg->versionLength);
