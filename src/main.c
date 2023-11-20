@@ -49,6 +49,10 @@ const uint32_t OKX_SELECTORS[NUM_SELECTORS] = {
 
 // Function to dispatch calls from the ethereum app.
 void dispatch_plugin_calls(int message, void *parameters) {
+    if (parameters == NULL) {
+        PRINTF("dispatch_plugin_calls, error: parameters is NULL\n");
+        return;
+    }
     switch (message) {
         case ETH_PLUGIN_INIT_CONTRACT:
             handle_init_contract(parameters);

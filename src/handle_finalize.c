@@ -20,8 +20,5 @@ void handle_finalize(void *parameters) {
                context->selectorIndex == OKX_DEX_SWAP_BRIDGE_TO_V2) {
         msg->numScreens = 2;
     }
-    // EDIT THIS: set `tokenLookup1` (and maybe `tokenLookup2`) to point to
-    // token addresses you will info for (such as decimals, ticker...).
-    // msg->tokenLookup1 = context->token_received;
     msg->result = ETH_PLUGIN_RESULT_OK;
 }

@@ -13,6 +13,20 @@ const u_int8_t okx_selector_withdraw[] = {0x8c, 0xfb, 0x1b, 0xc3};              
 // Claim
 const u_int8_t okx_selector_claim_reward[] = {0xd9, 0x23, 0x8f, 0x08};  // 0xd9238f08;
 
+// Earn
+#define EARN_STAKE_CALL_DATA_SELECTOR_OFFSET_LINE 1
+#define EARN_STAKE_IN_OUT_COUNT_OFFSET_LINE 4
+#define EARN_STAKE_TOKEN_IN_DATA_OFFSET_LINE 5
+
+// DEX
+#define DEX_UNX_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET = 2
+#define DEX_UNI_SWAPV3_SWAP_TO_MIN_RETURN_LINE_OFFSET = 2
+#define DEX_PMMV2_SWAP_MIN_RETURN_LINE_OFFSET = 2
+#define DEX_SMART_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET = 4
+#define DEX_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET = 5
+#define DEX_SWAP_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET = 6
+
+
 static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *context) {
     if (context->go_to_offset) {
         if (msg->parameterOffset != context->offset + SELECTOR_SIZE) {
@@ -26,7 +40,7 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
     switch (context->next_param) {
         case EARN_STAKE:
             // find call data selector line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 1 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * EARN_STAKE_CALL_DATA_SELECTOR_OFFSET_LINE + SELECTOR_SIZE) {
                 u_int16_t calls_offset = U2BE(msg->parameter, PARAMETER_LENGTH - 2);
                 context->earn_calls_selector_offset = calls_offset / PARAMETER_LENGTH + 5;
                 PRINTF(
@@ -56,7 +70,7 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
             }
 
             // find token in/out count line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 4 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * EARN_STAKE_IN_OUT_COUNT_OFFSET_LINE + SELECTOR_SIZE) {
                 // get token in count
                 context->earn_token_in_count = U2BE(msg->parameter, PARAMETER_LENGTH - 2);
                 PRINTF(
@@ -75,7 +89,7 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
             // parse token in data
             if (context->earn_token_in_count != 0) {
                 // get token in data
-                if (msg->parameterOffset > PARAMETER_LENGTH * 5 + SELECTOR_SIZE &&
+                if (msg->parameterOffset > PARAMETER_LENGTH * EARN_STAKE_TOKEN_IN_DATA_OFFSET_LINE + SELECTOR_SIZE &&
                     msg->parameterOffset <=
                         PARAMETER_LENGTH * (5 + context->earn_token_in_count * 3) + SELECTOR_SIZE) {
                     u_int16_t current_line =
@@ -178,7 +192,7 @@ static void handle_okx_dex_unx_swap_by_order_id(ethPluginProvideParameter_t *msg
     switch (context->next_param) {
         case DEX_UNX_SWAP_BY_ORDER_ID:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 2 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_UNX_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_UNX_SWAP_BY_ORDER_ID "
                     "-- %.*H\n",
@@ -207,7 +221,7 @@ static void handle_okx_dex_uni_swapv3_swap_to(ethPluginProvideParameter_t *msg,
     switch (context->next_param) {
         case DEX_UNI_SWAPV3_SWAP_TO:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 2 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_UNI_SWAPV3_SWAP_TO_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_UNI_SWAPV3_SWAP_TO -- "
                     "%.*H\n",
@@ -235,7 +249,7 @@ static void handle_okx_dex_pmmv2_swap(ethPluginProvideParameter_t *msg, context_
     switch (context->next_param) {
         case DEX_PMMV2_SWAP:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 2 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_PMMV2_SWAP_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_PMMV2_SWAP -- %.*H\n",
                     PARAMETER_LENGTH,
@@ -263,7 +277,7 @@ static void handle_okx_dex_smart_swap_by_order_id(ethPluginProvideParameter_t *m
     switch (context->next_param) {
         case DEX_SMART_SWAP_BY_ORDER_ID:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 4 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_SMART_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* "
                     "DEX_SMART_SWAP_BY_ORDER_ID -- %.*H\n",
@@ -291,7 +305,7 @@ static void handle_okx_dex_bridge_to_v2(ethPluginProvideParameter_t *msg, contex
     switch (context->next_param) {
         case DEX_BRIDGE_TO_V2:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 5 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_BRIDGE_TO_V2 -- "
                     "%.*H\n",
@@ -324,7 +338,7 @@ static void handle_okx_dex_swap_bridge_to_v2(ethPluginProvideParameter_t *msg, c
                 PARAMETER_LENGTH,
                 msg->parameter);
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * 6 + SELECTOR_SIZE) {
+            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_SWAP_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_SWAP_BRIDGE_TO_V2 -- "
                     "%.*H\n",
@@ -361,7 +375,6 @@ void handle_provide_parameter(void *parameters) {
 
     msg->result = ETH_PLUGIN_RESULT_OK;
 
-    // EDIT THIS: adapt the cases and the names of the functions.
     switch (context->selectorIndex) {
         case OKX_EARN_SWAP:
             handle_okx_earn_stake(msg, context);
