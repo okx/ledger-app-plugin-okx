@@ -6,9 +6,7 @@ void handle_query_contract_id(void *parameters) {
     const context_t *context = (const context_t *) msg->pluginContext;
     // msg->name will be the upper sentence displayed on the screen.
     // msg->version will be the lower sentence displayed on the screen.
-
     // For the first screen, display the plugin name.
-    // strlcpy(msg->name, PLUGIN_NAME, msg->nameLength);
     if (context->selectorIndex == OKX_EARN_SWAP) {
         strlcpy(msg->name, "OKX Web3 DeFi", msg->nameLength);
         if (context->operation != NULL) {
