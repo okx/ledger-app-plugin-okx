@@ -4,13 +4,11 @@
 static void set_okx_earn_ui(ethQueryContractUI_t *msg, const context_t *context) {
     uint8_t screenIndex = msg->screenIndex;
     uint16_t earn_token_in_count = context->earn_token_in_count;
-    uint16_t earn_token_out_count = context->earn_token_out_count;
 
     if (screenIndex < earn_token_in_count)  // token in
     {
         strlcpy(msg->title, "Send", msg->titleLength);
         if (screenIndex == 0) {
-            const uint8_t *eth_amount = context->token_in_amount1;
             uint8_t eth_amount_size = sizeof(context->token_in_amount1);
             amountToString(context->token_in_amount1,
                            eth_amount_size,
