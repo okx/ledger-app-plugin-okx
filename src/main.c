@@ -79,12 +79,9 @@ void dispatch_plugin_calls(int message, void *parameters) {
 }
 
 void handle_query_ui_exception(unsigned int *args) {
-    switch (args[0]) {
-        case ETH_PLUGIN_QUERY_CONTRACT_UI:
-            ((ethQueryContractUI_t *) args[1])->result = ETH_PLUGIN_RESULT_ERROR;
-            break;
-        default:
-            break;
+    if (args[0] == ETH_PLUGIN_QUERY_CONTRACT_UI)
+    {
+        ((ethQueryContractUI_t *) args[1])->result = ETH_PLUGIN_RESULT_ERROR;
     }
 }
 
@@ -124,9 +121,6 @@ __attribute__((section(".boot"))) int main(int arg0) {
     // Try catch block. Please read the docs for more information on how to use those!
     BEGIN_TRY {
         TRY {
-            // Low-level black magic.
-            check_api_level(CX_COMPAT_APILEVEL);
-
             // Check if we are called from the dashboard.
             if (!arg0) {
                 // Called from dashboard, launch Ethereum app
@@ -147,6 +141,8 @@ __attribute__((section(".boot"))) int main(int arg0) {
             switch (e) {
                 // These exceptions are only generated on handle_query_contract_ui()
                 case 0x6502:
+                    handle_query_ui_exception((unsigned int *) arg0);
+                    break;
                 case EXCEPTION_OVERFLOW:
                     handle_query_ui_exception((unsigned int *) arg0);
                     break;
