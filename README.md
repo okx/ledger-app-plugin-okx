@@ -1,4 +1,4 @@
-# app-plugin-boilerplate
+# ledger-app-plugin-okx
 
 This repo is a meant to be a forkable example of a plugin.
 
