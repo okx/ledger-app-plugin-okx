@@ -14,22 +14,21 @@ const u_int8_t okx_selector_withdraw[] = {0x8c, 0xfb, 0x1b, 0xc3};              
 const u_int8_t okx_selector_claim_reward[] = {0xd9, 0x23, 0x8f, 0x08};  // 0xd9238f08;
 
 // Earn
-#define EARN_STAKE_TOKEN_IN_PARAMS_COUNT 3
-#define EARN_STAKE_TOKEN_OUT_PARAMS_COUNT 2
-#define EARN_STAKE_BASE_LINE_OFFSET 5
+#define EARN_STAKE_TOKEN_IN_PARAMS_COUNT          3
+#define EARN_STAKE_TOKEN_OUT_PARAMS_COUNT         2
+#define EARN_STAKE_BASE_LINE_OFFSET               5
 #define EARN_STAKE_CALL_DATA_SELECTOR_LINE_OFFSET 1
-#define EARN_STAKE_IN_OUT_COUNT_LINE_OFFSET 4
-#define EARN_STAKE_TOKEN_IN_DATA_LINE_OFFSET 5
-#define EARN_STAKE_PARAM_PREFIX_LENGTH 2
+#define EARN_STAKE_IN_OUT_COUNT_LINE_OFFSET       4
+#define EARN_STAKE_TOKEN_IN_DATA_LINE_OFFSET      5
+#define EARN_STAKE_PARAM_PREFIX_LENGTH            2
 
 // DEX
-#define DEX_UNX_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET 2
-#define DEX_UNI_SWAPV3_SWAP_TO_MIN_RETURN_LINE_OFFSET 2
-#define DEX_PMMV2_SWAP_MIN_RETURN_LINE_OFFSET 2
+#define DEX_UNX_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET   2
+#define DEX_UNI_SWAPV3_SWAP_TO_MIN_RETURN_LINE_OFFSET     2
+#define DEX_PMMV2_SWAP_MIN_RETURN_LINE_OFFSET             2
 #define DEX_SMART_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET 4
-#define DEX_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET 5
-#define DEX_SWAP_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET 6
-
+#define DEX_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET           5
+#define DEX_SWAP_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET      6
 
 static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *context) {
     if (context->go_to_offset) {
@@ -44,9 +43,12 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
     switch (context->next_param) {
         case EARN_STAKE:
             // find call data selector line
-            if (msg->parameterOffset == PARAMETER_LENGTH * EARN_STAKE_CALL_DATA_SELECTOR_LINE_OFFSET + SELECTOR_SIZE) {
-                u_int16_t calls_offset = U2BE(msg->parameter, PARAMETER_LENGTH - EARN_STAKE_PARAM_PREFIX_LENGTH);
-                context->earn_calls_selector_offset = calls_offset / PARAMETER_LENGTH + EARN_STAKE_BASE_LINE_OFFSET;
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * EARN_STAKE_CALL_DATA_SELECTOR_LINE_OFFSET + SELECTOR_SIZE) {
+                u_int16_t calls_offset =
+                    U2BE(msg->parameter, PARAMETER_LENGTH - EARN_STAKE_PARAM_PREFIX_LENGTH);
+                context->earn_calls_selector_offset =
+                    calls_offset / PARAMETER_LENGTH + EARN_STAKE_BASE_LINE_OFFSET;
                 PRINTF(
                     "-- OKX PLUGIN ************************************* EARN_STAKE calls selector "
                     "offset: %d\n",
@@ -74,15 +76,20 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
             }
 
             // find token in/out count line
-            if (msg->parameterOffset == PARAMETER_LENGTH * EARN_STAKE_IN_OUT_COUNT_LINE_OFFSET + SELECTOR_SIZE) {
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * EARN_STAKE_IN_OUT_COUNT_LINE_OFFSET + SELECTOR_SIZE) {
                 // get token in count
-                context->earn_token_in_count = U2BE(msg->parameter, PARAMETER_LENGTH - EARN_STAKE_PARAM_PREFIX_LENGTH);
+                context->earn_token_in_count =
+                    U2BE(msg->parameter, PARAMETER_LENGTH - EARN_STAKE_PARAM_PREFIX_LENGTH);
                 PRINTF(
                     "-- OKX PLUGIN ************************************* EARN_STAKE token in "
                     "count: %d\n",
                     context->earn_token_in_count);
-                // token out line number，EARN_STAKE_BASE_LINE_OFFSET is the initial number, a fixed value.
-                u_int16_t token_out_count_line = EARN_STAKE_BASE_LINE_OFFSET + context->earn_token_in_count * EARN_STAKE_TOKEN_IN_PARAMS_COUNT;
+                // token out line number，EARN_STAKE_BASE_LINE_OFFSET is the initial number, a fixed
+                // value.
+                u_int16_t token_out_count_line =
+                    EARN_STAKE_BASE_LINE_OFFSET +
+                    context->earn_token_in_count * EARN_STAKE_TOKEN_IN_PARAMS_COUNT;
                 PRINTF(
                     "-- OKX PLUGIN ************************************* EARN_STAKE token in count "
                     "line: %d\n",
@@ -93,14 +100,20 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
             // parse token in data
             if (context->earn_token_in_count != 0) {
                 // get token in data
-                if (msg->parameterOffset > PARAMETER_LENGTH * EARN_STAKE_TOKEN_IN_DATA_LINE_OFFSET + SELECTOR_SIZE &&
+                if (msg->parameterOffset >
+                        PARAMETER_LENGTH * EARN_STAKE_TOKEN_IN_DATA_LINE_OFFSET + SELECTOR_SIZE &&
                     msg->parameterOffset <=
-                        PARAMETER_LENGTH * (EARN_STAKE_BASE_LINE_OFFSET + context->earn_token_in_count * EARN_STAKE_TOKEN_IN_PARAMS_COUNT) + SELECTOR_SIZE) {
+                        PARAMETER_LENGTH *
+                                (EARN_STAKE_BASE_LINE_OFFSET +
+                                 context->earn_token_in_count * EARN_STAKE_TOKEN_IN_PARAMS_COUNT) +
+                            SELECTOR_SIZE) {
                     u_int16_t current_line =
                         (msg->parameterOffset - SELECTOR_SIZE) / PARAMETER_LENGTH;
-                    u_int16_t current_sub_line = (current_line - EARN_STAKE_BASE_LINE_OFFSET) % EARN_STAKE_TOKEN_IN_PARAMS_COUNT;
+                    u_int16_t current_sub_line = (current_line - EARN_STAKE_BASE_LINE_OFFSET) %
+                                                 EARN_STAKE_TOKEN_IN_PARAMS_COUNT;
                     if (current_sub_line == 1) {  // token amount
-                        u_int16_t line = (current_line - EARN_STAKE_BASE_LINE_OFFSET) / EARN_STAKE_TOKEN_IN_PARAMS_COUNT;
+                        u_int16_t line = (current_line - EARN_STAKE_BASE_LINE_OFFSET) /
+                                         EARN_STAKE_TOKEN_IN_PARAMS_COUNT;
                         if (line == 0) {
                             copy_parameter(context->token_in_amount1,
                                            msg->parameter,
@@ -122,7 +135,8 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
             if (context->earn_token_out_count_offset != 0 &&
                 msg->parameterOffset ==
                     PARAMETER_LENGTH * context->earn_token_out_count_offset + SELECTOR_SIZE) {
-                context->earn_token_out_count = U2BE(msg->parameter, PARAMETER_LENGTH - EARN_STAKE_PARAM_PREFIX_LENGTH);
+                context->earn_token_out_count =
+                    U2BE(msg->parameter, PARAMETER_LENGTH - EARN_STAKE_PARAM_PREFIX_LENGTH);
                 PRINTF("-- OKX PLUGIN ************************************* Token out count: %d\n",
                        context->earn_token_out_count);
             }
@@ -134,14 +148,17 @@ static void handle_okx_earn_stake(ethPluginProvideParameter_t *msg, context_t *c
                         PARAMETER_LENGTH * context->earn_token_out_count_offset + SELECTOR_SIZE &&
                     msg->parameterOffset <=
                         PARAMETER_LENGTH * (context->earn_token_out_count_offset +
-                                            context->earn_token_out_count * EARN_STAKE_TOKEN_OUT_PARAMS_COUNT) +
+                                            context->earn_token_out_count *
+                                                EARN_STAKE_TOKEN_OUT_PARAMS_COUNT) +
                             SELECTOR_SIZE) {
                     u_int16_t current_line =
                         (msg->parameterOffset - SELECTOR_SIZE) / PARAMETER_LENGTH;
                     u_int16_t current_sub_line =
-                        (current_line - context->earn_token_out_count_offset) % EARN_STAKE_TOKEN_OUT_PARAMS_COUNT;
+                        (current_line - context->earn_token_out_count_offset) %
+                        EARN_STAKE_TOKEN_OUT_PARAMS_COUNT;
                     if (current_sub_line == 0) {  // token contract amount
-                        u_int16_t line = (current_line - context->earn_token_out_count_offset) / EARN_STAKE_TOKEN_OUT_PARAMS_COUNT;
+                        u_int16_t line = (current_line - context->earn_token_out_count_offset) /
+                                         EARN_STAKE_TOKEN_OUT_PARAMS_COUNT;
 
                         PRINTF(
                             "-- OKX PLUGIN ************************************* TOKEN OUT DATA "
@@ -196,7 +213,9 @@ static void handle_okx_dex_unx_swap_by_order_id(ethPluginProvideParameter_t *msg
     switch (context->next_param) {
         case DEX_UNX_SWAP_BY_ORDER_ID:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_UNX_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * DEX_UNX_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET +
+                    SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_UNX_SWAP_BY_ORDER_ID "
                     "-- %.*H\n",
@@ -225,7 +244,8 @@ static void handle_okx_dex_uni_swapv3_swap_to(ethPluginProvideParameter_t *msg,
     switch (context->next_param) {
         case DEX_UNI_SWAPV3_SWAP_TO:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_UNI_SWAPV3_SWAP_TO_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * DEX_UNI_SWAPV3_SWAP_TO_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_UNI_SWAPV3_SWAP_TO -- "
                     "%.*H\n",
@@ -253,7 +273,8 @@ static void handle_okx_dex_pmmv2_swap(ethPluginProvideParameter_t *msg, context_
     switch (context->next_param) {
         case DEX_PMMV2_SWAP:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_PMMV2_SWAP_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * DEX_PMMV2_SWAP_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_PMMV2_SWAP -- %.*H\n",
                     PARAMETER_LENGTH,
@@ -281,7 +302,9 @@ static void handle_okx_dex_smart_swap_by_order_id(ethPluginProvideParameter_t *m
     switch (context->next_param) {
         case DEX_SMART_SWAP_BY_ORDER_ID:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_SMART_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * DEX_SMART_SWAP_BY_ORDER_ID_MIN_RETURN_LINE_OFFSET +
+                    SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* "
                     "DEX_SMART_SWAP_BY_ORDER_ID -- %.*H\n",
@@ -309,7 +332,8 @@ static void handle_okx_dex_bridge_to_v2(ethPluginProvideParameter_t *msg, contex
     switch (context->next_param) {
         case DEX_BRIDGE_TO_V2:
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * DEX_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_BRIDGE_TO_V2 -- "
                     "%.*H\n",
@@ -342,7 +366,8 @@ static void handle_okx_dex_swap_bridge_to_v2(ethPluginProvideParameter_t *msg, c
                 PARAMETER_LENGTH,
                 msg->parameter);
             // find minReturn line
-            if (msg->parameterOffset == PARAMETER_LENGTH * DEX_SWAP_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
+            if (msg->parameterOffset ==
+                PARAMETER_LENGTH * DEX_SWAP_BRIDGE_TO_V2_MIN_RETURN_LINE_OFFSET + SELECTOR_SIZE) {
                 PRINTF(
                     "-- OKX PLUGIN ************************************* DEX_SWAP_BRIDGE_TO_V2 -- "
                     "%.*H\n",
