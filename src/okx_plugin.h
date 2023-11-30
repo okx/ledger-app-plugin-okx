@@ -58,7 +58,7 @@ typedef struct context_t {
     selector_t selectorIndex;
 
     // For OKX
-    const char *operation;                          // operation name
+    const char *operation;                    // operation name
     uint16_t earn_token_in_count;             // earn token in count
     uint16_t earn_token_out_count_offset;     // earn token out offset
     uint16_t earn_token_out_count;            // earn token out count
